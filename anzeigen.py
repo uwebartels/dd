@@ -83,7 +83,7 @@ def get_next_delete_url(session):
     return relativeurl
   return None
 
-def anzeigen_loeschen(session,anzeige):
+def anzeigen_loeschen(session):
 
   relativeurl = get_next_delete_url(session)
   while(relativeurl):  
@@ -115,7 +115,7 @@ def anzeige_einstellen(session,anzeige):
   data=parser.return_data()
 
   # 'Anzeige eintragen' anklicken
-  print('- Anzeige eintragen')
+  print('- Anzeige eintragen: '+anzeige['title'])
   response = session.get(config['baseurl']+'/'+data['links']['Anzeige eintragen'])
   response.raise_for_status() # -> make sure it is 200
   html = response.text
@@ -125,7 +125,7 @@ def anzeige_einstellen(session,anzeige):
   #print(json.dumps(data,sort_keys=True,indent=4))
 
   # Kategorie wählen
-  print('- Kategorie wählen')
+  print('- Kategorie wählen: '+anzeige['category'])
   catid=''
   for option in data['select']['catid']:
     if re.match('^'+anzeige['category']+' \(',option):
@@ -189,11 +189,13 @@ def anzeige_einstellen(session,anzeige):
     #print(html)
 
 config=readConfig()
-
-anzeige = Anzeige(config[anzeigenpath])
-print(anzeige)
-
 session=login()
-anzeigen_loeschen(session,anzeige)
-anzeige_einstellen(session,anzeige)
+anzeigen_loeschen(session)
+dirs = sorted(os.listdir(config['anzeigenpath']))
+for dir in dirs:
+  absolutepathdir=os.path.join(config['anzeigenpath'],dir)
+  if not os.path.isdir(absolutepathdir): continue
+  anzeige = Anzeige(absolutepathdir)
+  anzeige_einstellen(session,anzeige)
+
 

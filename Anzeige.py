@@ -2,37 +2,49 @@ import os,re
 
 class Anzeige:
   def __init__(self,directory):
+    self.directory=directory
+    self.title=''
     self.text=''
+    self.price=''
+    self.category=''
+    self.place=''
     self.pictures=[]
+
     files = sorted(os.listdir(directory))
     for filename in files:
       if re.match('^\.',filename): continue
       if filename == 'text.txt':
-        lines=0
-        with open(os.path.join(directory,'text.txt')) as f:
-          for line in f:
-            lines += 1
-            if lines <= 4:
-              match = re.search('^(Titel|Preis|Kategorie|Ort): (.*)',line)
-              if match:
-                if   match.group(1) == 'Titel':      self.title    = match.group(2)
-                elif match.group(1) ==  'Preis':     self.price    = match.group(2)
-                elif match.group(1) ==  'Kategorie': self.category = match.group(2)
-                elif match.group(1) ==  'Ort':       self.place    = match.group(2)
-                else: raise Exception('Unbekanntes Element '+match.group(1)+' in '+os.path.join(directory,'text.txt')+'.')
-              else:
-                raise Exception('Die ersten 4 Zeile sind für Titel, Preis, Kategorie und Ort.')
-            else:
-              self.text += line
+        self.__readText()
       else:
-        filebase,extension = os.path.splitext(filename)
-        extension = extension[1:] # remove initial dot
-        if extension not in ['jpg','jpeg','JPG','JPEG','gif','GIF','png','PNG']:
-          raise Exception(filename+' with'+extension+' does not apear to be an picture. please check.')
-        if len(self.pictures)<3:
-          self.pictures.append(os.path.join(directory,filename))
+        self.__readPicture(filename)
+
+  def __readText(self):
+    lines=0
+    with open(os.path.join(self.directory,'text.txt')) as f:
+      for line in f:
+        lines += 1
+        if lines <= 4:
+          match = re.search('^(Titel|Preis|Kategorie|Ort): (.*)',line)
+          if match:
+            if   match.group(1) == 'Titel':      self.title    = match.group(2)
+            elif match.group(1) ==  'Preis':     self.price    = match.group(2)
+            elif match.group(1) ==  'Kategorie': self.category = match.group(2)
+            elif match.group(1) ==  'Ort':       self.place    = match.group(2)
+            else: raise Exception('Unbekanntes Element '+match.group(1)+' in '+os.path.join(directory,'text.txt')+'.')
+          else:
+            raise Exception('Die ersten 4 Zeile sind für Titel, Preis, Kategorie und Ort.')
         else:
-          raise Exception("only 3 pictures are allowed.")
+          self.text += line
+
+  def __readPicture(self,filename):
+    filebase,extension = os.path.splitext(filename)
+    extension = extension[1:] # remove initial dot
+    if extension not in ['jpg','jpeg','JPG','JPEG','gif','GIF','png','PNG']:
+      raise Exception(filename+' with'+extension+' does not apear to be an picture. please check.')
+    if len(self.pictures)<3:
+      self.pictures.append(os.path.join(self.directory,filename))
+    else:
+      raise Exception("only 3 pictures are allowed.")
 
   def __repr__(self):
     return '\n'.join((('title: '+self.title,
