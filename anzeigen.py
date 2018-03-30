@@ -4,7 +4,6 @@
 # tested with python 3.3.2
 
 #import httplib,urllib
-from html.parser import HTMLParser
 import requests
 import os,re,time,sys,json
 import logging
@@ -179,14 +178,38 @@ def anzeige_einstellen(session,anzeige):
               'MAX_FILE_SIZE': data['form']['upload_file.php']['input']['MAX_FILE_SIZE'],
               'submit': 'Hochladen'}
     with open(picture,mode='rb') as f:
-      # mimetypes.types_map['.tgz']
-      response = session.post(url, data=params, files={'photo':[os.path.basename(picture),f,'image/jpeg']})
+      root,extension=os.path.splitext(picture)
+      mimetype=mimetypes.types_map[extension.lower()]
+      response = session.post(url, data=params, files={'photo':[os.path.basename(picture),f,mimetype]})
     response.raise_for_status() # -> make sure it is 200
     html = response.text
     parser = DDHtmlParser()
     parser.feed(html)
     data=parser.return_data()
     #print(html)
+
+  if anzeige['isReserved']:
+    print('- Anzeige(n) bearbeiten')
+    response = session.get(config['baseurl']+'/'+data['links']['Anzeige(n) bearbeiten'])
+    response.raise_for_status() # -> make sure it is 200
+    html = response.text
+    parser = DDHtmlParser()
+    parser.feed(html)
+    data=parser.return_data()
+
+    link=data['links'][anzeige['title']]
+    match=re.match('^detail\.php\?siteid=(\d+)$',link)
+    if match:
+      anzeigeid=match.group(1)
+      
+      print('- Anzeige Reserviert')
+      response = session.get(config['baseurl']+'/my_items.php?soldid='+anzeigeid)
+      response.raise_for_status() # -> make sure it is 200
+      html = response.text
+      parser = DDHtmlParser()
+      parser.feed(html)
+      data=parser.return_data()
+
 
 config=readConfig()
 session=login()
