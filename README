@@ -29,3 +29,13 @@ Letzte Zeilen sind der Text der Anzeige und kann sich über mehrere Zeilen erstr
 was passiert?
 - es werden alle anzeigen aus dem Account gelöscht
 - alle Anzeigen in dem Verzeichnis werden neu erstellt
+
+
+Voraussetungen:
+- Python 3.3 oder größer
+
+Todo's / bekannte Probleme:
+- Umlaute und Sonderzeichen
+  einfach weglassen oder ue statt ü benutzen
+- Auswahl der Kategorie
+  Beschränkt Euch hier auf einen Teilstring ohne Sonderzeichen und Umlauten
