@@ -16,6 +16,7 @@ class DDSession:
     self.lastresponse=None
     self.lasthtml=None
     self.lastdata=None
+    self.lastencoding=None
 
     self.__login()
 
@@ -37,7 +38,11 @@ class DDSession:
     url=self.config['baseurl']+'/'+relativeurl
     log.debug("url: "+url)
     log.debug("params: "+json.dumps(params))
-    self.lastresponse = self.session.post(url, data=params, files=files)
+    parameter={}
+    ddencoding='iso-8859-1'
+    for key,value in params.items():
+      parameter[key]=value.encode(self.lastencoding or 'iso-8859-1')
+    self.lastresponse = self.session.post(url, data=parameter, files=files)
     self.__processResponse()
 
   def __processResponse(self):
@@ -46,6 +51,14 @@ class DDSession:
     parser = DDHtmlParser()
     parser.feed(self.lasthtml)
     self.lastdata=parser.return_data()
+    try:
+      contenttype=self.lastdata['meta']['http-equiv']['content-type']
+      # "text/html; charset=iso-8859-1"
+      self.lastencoding=rematch('^.*charset=([^;]*).*',contenttype).group(1)
+      log.info('content-type: '+contenttype)
+      log.info('encoding: '+self.lastencoding)
+    except Exception:
+      pass
 
   def __login(self):
     self.session = requests.Session() 

@@ -1,13 +1,17 @@
 from html.parser import HTMLParser
 import json
 
+import logging
+
+log = logging.getLogger(__name__)
+
 class DDHtmlParser(HTMLParser):
   mytags=[]
   
   def __init__(self):
     HTMLParser.__init__(self)
-    self.mydata = {'links': {},'select': {},'forms': {}} 
-    self.myignoretags = ['meta','link','img','font','br','p','b','input']
+    self.mydata = {'links': {},'select': {},'forms': {},'meta':{'http-equiv':{},'name':{},'property':{},}}
+    self.myignoretags = ['link','img','font','br','p','b','input']
     self.myhref = ''
     self.myselect = ''
     self.myoptionvalue = ''
@@ -16,8 +20,8 @@ class DDHtmlParser(HTMLParser):
   def handle_starttag(self, tag, attrs):
     #if showparserdetails: print("Encountered a start tag:", tag, json.dumps(dict(attrs)))
     if tag not in self.myignoretags:
-      #print("Encountered a start tag:", tag, json.dumps(self.mytags))
-      self.mytags.append(tag)
+      if tag not in ['meta']:
+        self.mytags.append(tag)
     if tag == 'a':
       self.myhref = attrs[0][1]
     if tag == 'option':
@@ -35,7 +39,19 @@ class DDHtmlParser(HTMLParser):
       attributes=dict(attrs)
       if 'name' in attributes and 'value' in attributes:
         self.mydata['forms'][self.myform]['input'][attributes['name']]=attributes['value']
-
+    if tag == 'meta':
+      attributes=dict(attrs)
+      if 'http-equiv' in attributes:
+        # <meta http-equiv="content-type" content="text/html; charset=iso-8859-1">
+        self.mydata['meta']['http-equiv'][attributes['http-equiv']]=attributes['content']
+      elif 'name' in attributes:
+        # <meta name="language" content="de">
+        self.mydata['meta']['name'][attributes['name']]=attributes['content']
+      elif 'property' in attributes:
+        # <meta property="og:image" content="http://www.dailydose.de/private-kleinanzeigen/aaa04.jpg">
+        self.mydata['meta']['property'][attributes['property']]=attributes['content']
+      else:
+        log.warn("Unhandled meta tag: "+json.dumps(attributes))
 
   def handle_endtag(self, tag):
     #print("Encountered an end tag :", tag)
@@ -49,9 +65,8 @@ class DDHtmlParser(HTMLParser):
         self.mydata['links'][self.myhref]=self.myhref
 
     if tag not in self.myignoretags:
-      #print("Encountered an end tag:", tag, json.dumps(self.mytags))
       while (self.mytags.pop() != tag): 
-        print("Encountered an unregistered end tag :", tag)
+        log.warn("Encountered an unregistered end tag : "+tag)
         pass
 
   def handle_data(self, data):

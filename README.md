@@ -1,5 +1,12 @@
 # dd anzeigen automatisch einstellen
 
+## Voraussetungen:
+- Python 3.3 oder größer
+Python kommt mit der Installation von Xcode mit
+
+## Installation
+- als ZIP herunterladen und auspacken
+
 ## wie geht's?
 - Verzeichnis mit den Anzeigen erstellen
 - pro Anzeige darin ein Verzeichnis erstellen
@@ -26,17 +33,16 @@ Letzte Zeilen sind der Text der Anzeige und kann sich über mehrere Zeilen erstr
 }
 ```
 - Skript anzeigen.py starten
+Terminal starten
+```
+cd <Verzeichnis mit den von github ausgepackten Dateien>
+./anzeigen
 
 ## was passiert?
 - es werden alle anzeigen aus dem Account gelöscht
 - alle Anzeigen in dem Verzeichnis werden neu erstellt
 
 
-## Voraussetungen:
-- Python 3.3 oder größer
-
 ## Todo's / bekannte Probleme:
-- Umlaute und Sonderzeichen
-  einfach weglassen oder ue statt ü benutzen
 - Auswahl der Kategorie
   Beschränkt Euch hier auf einen Teilstring ohne Sonderzeichen und Umlauten
