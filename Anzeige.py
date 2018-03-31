@@ -1,4 +1,5 @@
-import os,re
+import os,re,logging
+log = logging.getLogger(__name__)
 
 class Anzeige:
   truestrings=['ja','true','yes','Ja','JA','Yes','YES']
@@ -14,17 +15,21 @@ class Anzeige:
     self.pictures=[]
 
     files = sorted(os.listdir(directory))
+    if 'text.txt' in files:
+      self.__readText()
+    else:
+      raise Exception("Datei text.txt konnte nicht gefunden werden.")
+
     pictures=0
     for filename in sorted(files):
       if re.match('^\.',filename): continue
-      if filename == 'text.txt':
-        self.__readText()
+      if filename == 'text.txt': continue
+
+      pictures+=1
+      if pictures<=3:
+        self.__readPicture(filename)
       else:
-        pictures+=1
-        if pictures<=3:
-          self.__readPicture(filename)
-        else:
-          print('WARNING - ignoring picture '+filename)
+        log.warning('- ignoring picture '+filename+' for '+self.title)
 
   def __to_boolean(self,string):
     if string in self.truestrings:
