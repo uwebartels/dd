@@ -21,13 +21,23 @@ class DDSession:
 
   def __getitem__(self, key):
     if key == 'config': return self.config
-    #elif key == 'price': return self.price
 
   def __readConfig(self,configfile):
     return json.load(open(configfile))["dd"]
 
   def __get(self,relativeurl):
-    self.lastresponse = self.session.get(self.config['baseurl']+'/'+relativeurl)
+    url=self.config['baseurl']+'/'+relativeurl
+    self.lastresponse = self.session.get(url)
+    self.__processResponse()
+
+  def __post(self,relativeurl,params, **kwargs):
+    self.__poster(relativeurl,params, **kwargs)
+
+  def __poster(self,relativeurl,params, files=None):
+    url=self.config['baseurl']+'/'+relativeurl
+    log.debug("url: "+url)
+    log.debug("params: "+json.dumps(params))
+    self.lastresponse = self.session.post(url, data=params, files=files)
     self.__processResponse()
 
   def __processResponse(self):
@@ -42,12 +52,8 @@ class DDSession:
 
     # login
     log.info("- Login")
-    url=self.config['baseurl']+'/member_login.php'
-    log.debug("url: "+url)
     params = {'redirect_to': '', 'username': self.config['username'], 'password': self.config['password'], 'submit':'Einloggen'}
-    log.debug("params: "+json.dumps(params))
-    self.lastresponse = self.session.post(url, data=params)
-    self.lastresponse.raise_for_status() # -> make sure it is 200
+    self.__post('/member_login.php',params)
 
     # page after login
     log.info("- Seite Mitgliederbereich")
@@ -99,21 +105,18 @@ class DDSession:
     if catid=='': raise("Kategorie "+category+' not found.')
     url=self.config['baseurl']+'/item.php'
     params = {'catid': catid }
-    self.lastresponse = self.session.post(url, data=params)
-    self.__processResponse()
+    self.__post('/item.php',params)
 
     log.info('- Anzeige einstellen')
-    url=self.config['baseurl']+'/item.php'
     params = {'sitecatid': catid,
               'sitetitle': anzeige['title'],
               'sitedescription': anzeige['text'],
-              'e_1': anzeige['price'].encode('utf-8'),
+              'e_1': anzeige['price'],
               'e_2': anzeige['place'],
               'expire_days': '30',
               'siteid': '',
               'submit': 'Weiter zum Bildupload'}
-    self.lastresponse = self.session.post(url, data=params)
-    self.__processResponse()
+    self.__post('/item.php',params)
 
     log.info('- Weiter zum Bild hochladen')
     self.__get('/'+self.lastdata['links'][self.__getKeyByValue(self.lastdata['links'],'upload_file\.php\?pictures_siteid=')])
@@ -127,23 +130,22 @@ class DDSession:
   def __uploadPicture(self,picture):
     log.info("- Uploading Picture "+os.path.basename(picture))
     url=self.config['baseurl']+'/'+'upload_file.php'
-    params = {'pictures_siteid': self.lastdata['form']['upload_file.php']['input']['pictures_siteid'],
-              'MAX_FILE_SIZE': self.lastdata['form']['upload_file.php']['input']['MAX_FILE_SIZE'],
+    params = {'pictures_siteid': self.lastdata['forms']['upload_file.php']['input']['pictures_siteid'],
+              'MAX_FILE_SIZE': self.lastdata['forms']['upload_file.php']['input']['MAX_FILE_SIZE'],
               'submit': 'Hochladen'}
     with open(picture,mode='rb') as f:
       root,extension=os.path.splitext(picture)
       mimetype=mimetypes.types_map[extension.lower()]
-      self.lastresponse = self.session.post(url, data=params, files={'photo':[os.path.basename(picture),f,mimetype]})
-      self.__processResponse()
+      self.__post('/upload_file.php',params, files={'photo':[os.path.basename(picture),f,mimetype]})
 
   def __setReserved(self):
-      log.info('- Anzeige(n) bearbeiten')
-      self.__get('/'+self.lastdata['links']['Anzeige(n) bearbeiten'])
-
-      link=self.lastdata['links'][anzeige['title']]
-      match=re.match('^detail\.php\?siteid=(\d+)$',link)
-      if match:
-        anzeigeid=match.group(1)
-        log.info('- Anzeige Reserviert')
-        self.__get('/my_items.php?soldid='+anzeigeid)
+    log.info('- Anzeige Reserviert')
+    self.__get('/'+self.lastdata['links']['Anzeige(n) bearbeiten'])
+    link=self.lastdata['links'][anzeige['title']]
+    match=re.match('^detail\.php\?siteid=(\d+)$',link)
+    if match:
+      anzeigeid=match.group(1)
+      self.__get('/my_items.php?soldid='+anzeigeid)
+    else:
+      raise Exception("Link '"+anzeige['title']+"' nicht gefunden.")
 

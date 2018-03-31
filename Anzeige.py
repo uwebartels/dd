@@ -68,7 +68,7 @@ class Anzeige:
 
   def __repr__(self):
     return '\n'.join((('title: '+self.title,
-                       'price: '+str(self.price),
+                       'price: '+self.price,
                        'category: '+self.category,
                        'place: '+self.place,
                        'isReserved: '+self.isReserved,
@@ -76,7 +76,7 @@ class Anzeige:
                        'pictures: '+', '.join(self.pictures))))
 
   def __getitem__(self, key):
-    if key == 'title': return self.title
+    if key == 'title': return str(self.title)
     elif key == 'price': return self.price
     elif key == 'category': return self.category
     elif key == 'place': return self.place

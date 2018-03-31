@@ -6,7 +6,7 @@ import sys
 if sys.version_info < (3, 3):
     raise "must use python 3.3 or greater"
 
-import os,logging
+import os,logging,traceback
 from DDSession import DDSession
 from Anzeige import Anzeige
 
@@ -34,8 +34,8 @@ for dir in dirs:
   except Exception as e:
     exc_type, exc_value, exc_traceback = sys.exc_info()
     #traceback.print_exception(exc_type,exc_value, exc_traceback,limit=5, file=sys.stdout)
-    print('Error in '+anzeige.title+'; '+e, file=sys.stderr)
-    exeption_hash = {'title:':anzeige.title,
+    print('Error in '+anzeige['title'], file=sys.stderr)
+    exeption_hash = {'title':anzeige['title'],
                      'exception':e,
                      'exc_type':exc_type,
                      'exc_value':exc_value,
@@ -49,7 +49,7 @@ if len(exceptions)>0:
     print()
     print('Error in '+e['title'])
     print('=================================')
-    traceback.print_exception(e['exc_type'], e['exc_value'], e['exc_traceback'],limit=5, file=sys.sterr)
+    traceback.print_exception(e['exc_type'], e['exc_value'], e['exc_traceback'],limit=5, file=sys.stderr)
   sys.exit(1)
 
 sys.exit(0)

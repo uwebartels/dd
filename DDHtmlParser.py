@@ -6,7 +6,7 @@ class DDHtmlParser(HTMLParser):
   
   def __init__(self):
     HTMLParser.__init__(self)
-    self.mydata = {'links': {},'select': {},'form': {}} 
+    self.mydata = {'links': {},'select': {},'forms': {}} 
     self.myignoretags = ['meta','link','img','font','br','p','b','input']
     self.myhref = ''
     self.myselect = ''
@@ -29,12 +29,12 @@ class DDHtmlParser(HTMLParser):
     if tag == 'form':
       attributes=dict(attrs)
       self.myform=attributes['action']
-      self.mydata['form'][attributes['action']]=attributes
-      self.mydata['form'][attributes['action']]['input']={}
+      self.mydata['forms'][attributes['action']]=attributes
+      self.mydata['forms'][attributes['action']]['input']={}
     if tag == 'input':
       attributes=dict(attrs)
       if 'name' in attributes and 'value' in attributes:
-        self.mydata['form'][self.myform]['input'][attributes['name']]=attributes['value']
+        self.mydata['forms'][self.myform]['input'][attributes['name']]=attributes['value']
 
 
   def handle_endtag(self, tag):
