@@ -2,10 +2,11 @@
 # -*- coding: utf-8 -*-
 
 # tested with python 3.3.2
+import sys
 if sys.version_info < (3, 3):
     raise "must use python 3.3 or greater"
 
-import sys,os,logging
+import os,logging
 from DDSession import DDSession
 from Anzeige import Anzeige
 

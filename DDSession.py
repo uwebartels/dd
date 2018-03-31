@@ -26,6 +26,10 @@ class DDSession:
   def __readConfig(self,configfile):
     return json.load(open(configfile))["dd"]
 
+  def __get(self,relativeurl):
+    self.lastresponse = self.session.get(self.config['baseurl']+'/'+relativeurl)
+    self.__processResponse()
+
   def __processResponse(self):
     self.lastresponse.raise_for_status() # -> make sure it is 200
     self.lasthtml = self.lastresponse.text
@@ -47,10 +51,7 @@ class DDSession:
 
     # page after login
     log.info("- Seite Mitgliederbereich")
-    url=self.config['baseurl']+'/member.php'
-    log.debug("url: "+url)
-    self.lastresponse = self.session.get(url)
-    self.__processResponse()
+    self.__get('/member.php')
 
   def __getKeyByValue(self,dict,regexp):
     for key,value in dict.items():
@@ -59,14 +60,12 @@ class DDSession:
         return key
 
   def __getNextDeleteUrl(self):
-
-    self.lastresponse = self.session.get(self.config['baseurl']+'/member.php')
-    self.__processResponse()
+    self.__get('/member.php')
 
     try:
-      self.lastresponse = self.session.get(self.config['baseurl']+'/'+self.lastdata['links']['Anzeige(n) bearbeiten'])
+      self.__get('/'+self.lastdata['links']['Anzeige(n) bearbeiten'])
     except Exception:
-      log.debug(json.dumps(data['links'],indent=4))
+      log.debug(json.dumps(self.lastdata['links'],indent=4))
       raise
     self.__processResponse()
 
@@ -80,19 +79,16 @@ class DDSession:
     relativeurl = self.__getNextDeleteUrl()
     while(relativeurl):  
       log.info('- delete anzeige '+relativeurl)
-      self.lastresponse = self.session.get(self.config['baseurl']+'/'+relativeurl)
-      self.__processResponse()
+      self.__get('/'+relativeurl)
       relativeurl = self.__getNextDeleteUrl()
 
   def anzeigeEinstellen(self,anzeige):
     log.info('- start page')
-    self.lastresponse = self.session.get(self.config['baseurl']+'/member.php')
-    self.__processResponse()
+    self.__get('/member.php')
 
     # 'Anzeige eintragen' anklicken
     log.info('- Anzeige eintragen: '+anzeige['title'])
-    self.lastresponse = self.session.get(self.config['baseurl']+'/'+self.lastdata['links']['Anzeige eintragen'])
-    self.__processResponse()
+    self.__get('/'+self.lastdata['links']['Anzeige eintragen'])
 
     # Kategorie wählen
     log.info('- Kategorie wählen: '+anzeige['category'])
@@ -120,8 +116,7 @@ class DDSession:
     self.__processResponse()
 
     log.info('- Weiter zum Bild hochladen')
-    self.lastresponse = self.session.get(self.config['baseurl']+'/'+self.lastdata['links'][self.__getKeyByValue(self.lastdata['links'],'upload_file\.php\?pictures_siteid=')])
-    self.__processResponse()
+    self.__get('/'+self.lastdata['links'][self.__getKeyByValue(self.lastdata['links'],'upload_file\.php\?pictures_siteid=')])
 
     for picture in reversed(anzeige['pictures']):
       self.__uploadPicture(picture)
@@ -143,14 +138,12 @@ class DDSession:
 
   def __setReserved(self):
       log.info('- Anzeige(n) bearbeiten')
-      self.lastresponse = self.session.get(self.config['baseurl']+'/'+self.lastdata['links']['Anzeige(n) bearbeiten'])
-      self.__processResponse()
+      self.__get('/'+self.lastdata['links']['Anzeige(n) bearbeiten'])
 
       link=self.lastdata['links'][anzeige['title']]
       match=re.match('^detail\.php\?siteid=(\d+)$',link)
       if match:
         anzeigeid=match.group(1)
         log.info('- Anzeige Reserviert')
-        self.lastresponse = self.session.get(self.config['baseurl']+'/my_items.php?soldid='+anzeigeid)
-        self.__processResponse()
+        self.__get('/my_items.php?soldid='+anzeigeid)
 
