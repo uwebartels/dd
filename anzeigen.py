@@ -8,6 +8,7 @@ import requests
 import os,re,time,sys,json
 import logging
 import mimetypes
+import traceback
 
 from Anzeige import Anzeige
 from DDHtmlParser import DDHtmlParser
@@ -20,6 +21,7 @@ requests_log = logging.getLogger("requests.packages.urllib3")
 requests_log.setLevel(logging.DEBUG)
 requests_log.propagate = False
 mimetypes.init()
+exceptions=[]
 
 configfile='.config.json'
 config={}
@@ -127,7 +129,7 @@ def anzeige_einstellen(session,anzeige):
   print('- Kategorie wählen: '+anzeige['category'])
   catid=''
   for option in data['select']['catid']:
-    if re.match('^'+anzeige['category']+' \(',option):
+    if re.match(anzeige['category']+' \(',option):
       catid=data['select']['catid'][option]
   if catid=='': raise("Kategorie "+category+' not found.')
   url=config['baseurl']+'/item.php'
@@ -218,7 +220,29 @@ dirs = sorted(os.listdir(config['anzeigenpath']))
 for dir in dirs:
   absolutepathdir=os.path.join(config['anzeigenpath'],dir)
   if not os.path.isdir(absolutepathdir): continue
-  anzeige = Anzeige(absolutepathdir)
-  anzeige_einstellen(session,anzeige)
+  try:
+    anzeige = Anzeige(absolutepathdir)
+    anzeige_einstellen(session,anzeige)
+  except Exception as e:
+    exc_type, exc_value, exc_traceback = sys.exc_info()
+    #traceback.print_exception(exc_type,exc_value, exc_traceback,limit=5, file=sys.stdout)
+    print('Error in '+anzeige.title+'; '+e, file=sys.stderr)
+    exeption_hash = {'title:':anzeige.title,
+                     'exception':e,
+                     'exc_type':exc_type,
+                     'exc_value':exc_value,
+                     'exc_traceback':exc_traceback}
+    exceptions.append(exeption_hash)
 
+    pass
+
+if len(exceptions)>0:
+  for e in exceptions:
+    print()
+    print('Error in '+e['title'])
+    print('=================================')
+    traceback.print_exception(e['exc_type'], e['exc_value'], e['exc_traceback'],limit=5, file=sys.sterr)
+  sys.exit(1)
+
+sys.exit(0)
 
