@@ -9,6 +9,7 @@ import mimetypes
 log = logging.getLogger(__name__)
 
 class DDSession:
+  ddDefaultEncoding='iso-8859-1'
 
   def __init__(self):
     self.config = DDConfig()
@@ -29,17 +30,13 @@ class DDSession:
     self.lastresponse = self.session.get(url)
     self.__processResponse()
 
-  def __post(self,relativeurl,params, **kwargs):
-    self.__poster(relativeurl,params, **kwargs)
-
-  def __poster(self,relativeurl,params, files=None):
+  def __post(self,relativeurl,params, files=None):
     url=self.config['baseurl']+'/'+relativeurl
     log.debug("url: "+url)
     log.debug("params: "+json.dumps(params))
     parameter={}
-    ddencoding='iso-8859-1'
     for key,value in params.items():
-      parameter[key]=value.encode(self.lastencoding or 'iso-8859-1')
+      parameter[key]=value.encode(self.lastencoding or self.ddDefaultEncoding)
     self.lastresponse = self.session.post(url, data=parameter, files=files)
     self.__processResponse()
 
@@ -64,11 +61,11 @@ class DDSession:
     # login
     log.info("- Login")
     params = {'redirect_to': '', 'username': self.config['username'], 'password': self.config['password'], 'submit':'Einloggen'}
-    self.__post('/member_login.php',params)
+    self.__post('member_login.php',params)
 
     # page after login
     log.info("- Seite Mitgliederbereich")
-    self.__get('/member.php')
+    self.__get('member.php')
 
   def __getKeyByValue(self,dict,regexp):
     for key,value in dict.items():
@@ -77,10 +74,10 @@ class DDSession:
         return key
 
   def __getNextDeleteUrl(self):
-    self.__get('/member.php')
+    self.__get('member.php')
 
     try:
-      self.__get('/'+self.lastdata['links']['Anzeige(n) bearbeiten'])
+      self.__get(self.lastdata['links']['Anzeige(n) bearbeiten'])
     except Exception:
       log.debug(json.dumps(self.lastdata['links'],indent=4))
       raise
@@ -96,16 +93,16 @@ class DDSession:
     relativeurl = self.__getNextDeleteUrl()
     while(relativeurl):  
       log.info('- delete anzeige '+relativeurl)
-      self.__get('/'+relativeurl)
+      self.__get(relativeurl)
       relativeurl = self.__getNextDeleteUrl()
 
   def anzeigeEinstellen(self,anzeige):
     log.info('- start page')
-    self.__get('/member.php')
+    self.__get('member.php')
 
     # 'Anzeige eintragen' anklicken
     log.info('- Anzeige eintragen: '+anzeige['title'])
-    self.__get('/'+self.lastdata['links']['Anzeige eintragen'])
+    self.__get(self.lastdata['links']['Anzeige eintragen'])
 
     # Kategorie wählen
     log.info('- Kategorie wählen: '+anzeige['category'])
@@ -114,9 +111,8 @@ class DDSession:
       if re.match(anzeige['category']+' \(',option):
         catid=self.lastdata['select']['catid'][option]
     if catid=='': raise("Kategorie "+category+' not found.')
-    url=self.config['baseurl']+'/item.php'
     params = {'catid': catid }
-    self.__post('/item.php',params)
+    self.__post('item.php',params)
 
     log.info('- Anzeige einstellen')
     params = {'sitecatid': catid,
@@ -127,10 +123,10 @@ class DDSession:
               'expire_days': '30',
               'siteid': '',
               'submit': 'Weiter zum Bildupload'}
-    self.__post('/item.php',params)
+    self.__post('item.php',params)
 
     log.info('- Weiter zum Bild hochladen')
-    self.__get('/'+self.lastdata['links'][self.__getKeyByValue(self.lastdata['links'],'upload_file\.php\?pictures_siteid=')])
+    self.__get(self.lastdata['links'][self.__getKeyByValue(self.lastdata['links'],'upload_file\.php\?pictures_siteid=')])
 
     for picture in reversed(anzeige['pictures']):
       self.__uploadPicture(picture)
@@ -140,23 +136,22 @@ class DDSession:
 
   def __uploadPicture(self,picture):
     log.info("- Uploading Picture "+os.path.basename(picture))
-    url=self.config['baseurl']+'/'+'upload_file.php'
     params = {'pictures_siteid': self.lastdata['forms']['upload_file.php']['input']['pictures_siteid'],
               'MAX_FILE_SIZE': self.lastdata['forms']['upload_file.php']['input']['MAX_FILE_SIZE'],
               'submit': 'Hochladen'}
     with open(picture,mode='rb') as f:
       root,extension=os.path.splitext(picture)
       mimetype=mimetypes.types_map[extension.lower()]
-      self.__post('/upload_file.php',params, files={'photo':[os.path.basename(picture),f,mimetype]})
+      self.__post('upload_file.php',params, files={'photo':[os.path.basename(picture),f,mimetype]})
 
   def __setReserved(self):
     log.info('- Anzeige Reserviert')
-    self.__get('/'+self.lastdata['links']['Anzeige(n) bearbeiten'])
+    self.__get(self.lastdata['links']['Anzeige(n) bearbeiten'])
     link=self.lastdata['links'][anzeige['title']]
     match=re.match('^detail\.php\?siteid=(\d+)$',link)
     if match:
       anzeigeid=match.group(1)
-      self.__get('/my_items.php?soldid='+anzeigeid)
+      self.__get('my_items.php?soldid='+anzeigeid)
     else:
       raise Exception("Link '"+anzeige['title']+"' nicht gefunden.")
 
