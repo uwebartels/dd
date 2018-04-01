@@ -1,5 +1,5 @@
 
-import json,requests,re,os
+import json,requests,re,os,sys
 from DDHtmlParser import DDHtmlParser
 from DDConfig import DDConfig
 
@@ -73,7 +73,13 @@ class DDSession:
       if match:
         return key
 
-  def __getNextDeleteUrl(self):
+  def __getAnzeigeID(self,links,regexp):
+    for key,value in links.items():
+      match=re.match(regexp,value)
+      if match:
+        return match.group(1)
+
+  def __getNextDeleteID(self):
     self.__get('member.php')
 
     try:
@@ -83,18 +89,18 @@ class DDSession:
       raise
     self.__processResponse()
 
-    linkname=self.__getKeyByValue(self.lastdata['links'],'^my_items\.php\?deleteid=(.*)')
-    if linkname:
-      relativeurl=self.lastdata['links'][linkname]
-      return relativeurl
+    anzeigeID=self.__getAnzeigeID(self.lastdata['links'],'^my_items\.php\?deleteid=(.*)')
+    if anzeigeID:
+      return anzeigeID
     return None
 
   def anzeigenLoeschen(self):
-    relativeurl = self.__getNextDeleteUrl()
-    while(relativeurl):  
-      log.info('- delete anzeige '+relativeurl)
-      self.__get(relativeurl)
-      relativeurl = self.__getNextDeleteUrl()
+    anzeigeID=self.__getNextDeleteID()
+    link = 'my_items.php?deleteid='+anzeigeID
+    while(link):
+      log.info('- delete anzeige "'+self.lastdata['ddanzeige'][anzeigeID]+'"')
+      self.__get(link)
+      link = self.__getNextDeleteLink()
 
   def anzeigeEinstellen(self,anzeige):
     log.info('- start page')
@@ -132,7 +138,7 @@ class DDSession:
       self.__uploadPicture(picture)
 
     if anzeige['isReserved']:
-      self.__setReserved()
+      self.__setReserved(anzeige)
 
   def __uploadPicture(self,picture):
     log.info("- Uploading Picture "+os.path.basename(picture))
@@ -144,7 +150,7 @@ class DDSession:
       mimetype=mimetypes.types_map[extension.lower()]
       self.__post('upload_file.php',params, files={'photo':[os.path.basename(picture),f,mimetype]})
 
-  def __setReserved(self):
+  def __setReserved(self,anzeige):
     log.info('- Anzeige Reserviert')
     self.__get(self.lastdata['links']['Anzeige(n) bearbeiten'])
     link=self.lastdata['links'][anzeige['title']]
