@@ -19,8 +19,7 @@ requests_log.setLevel(logging.INFO)
 requests_log.propagate = False
 
 
-configfile='.config.json'
-session=DDSession(configfile)
+session=DDSession()
 session.anzeigenLoeschen()
 exceptions=[]
 

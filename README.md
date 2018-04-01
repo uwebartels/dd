@@ -2,7 +2,7 @@
 
 ## Voraussetungen:
 - Python 3.3 oder größer
-Python kommt mit der Installation von Xcode mit
+Python kommt auf dem Mac mit der Installation von Xcode mit
 
 ## Installation
 - als ZIP herunterladen und auspacken
@@ -21,22 +21,13 @@ Reserviert: Ja
 Freeride Finne, fast wie neu.
 ```
 Letzte Zeilen sind der Text der Anzeige und kann sich über mehrere Zeilen erstrecken.
-- Konfigurationsdatei .config.json im Verzeichnis der anzeigen.py anlegen, Format:
-```
-{
-  "dd": {
-    "baseurl": "https://www.dailydose.de/private-kleinanzeigen",
-    "username": "dd klein anzeigen account",
-    "password": "dd klein anzeigen passwort",
-    "anzeigenpath": "Verzeichnis mit den Anzeigen"
-  }
-}
-```
-- Skript anzeigen.py starten
+- Konfigurationsdatei dd.json wird automatisch erstellt, wenn sie nicht existiert. Hier werden login,password und Verzeichnis Eurer Anzeigen gespeichert.
+
+- Skript ./anzeigen.py starten
 Terminal starten
 ```
 cd <Verzeichnis mit den von github ausgepackten Dateien>
-./anzeigen
+./anzeigen.py
 
 ## was passiert?
 - es werden alle anzeigen aus dem Account gelöscht
@@ -45,4 +36,4 @@ cd <Verzeichnis mit den von github ausgepackten Dateien>
 
 ## Todo's / bekannte Probleme:
 - Auswahl der Kategorie
-  Beschränkt Euch hier auf einen Teilstring ohne Sonderzeichen und Umlauten
+  Beschränkt Euch hier auf einen eindeutigen Teilstring ohne Sonderzeichen und Umlauten. Hier muss ich auf Python 3.6 warten, dann geht automatisch mehr.

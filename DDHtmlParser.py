@@ -70,18 +70,14 @@ class DDHtmlParser(HTMLParser):
         pass
 
   def handle_data(self, data):
-    #global showparserdetails
     if len(self.mytags) == 0: return
     encodeddata=data.encode('utf-8')
-    #print('encodeddata: ',encodeddata)
     # collect all link names
     if self.mytags[len(self.mytags)-1] == 'a':
       self.mydata['links'][data]=self.myhref
     # collect all select options
     if len(self.mytags) > 0 and self.mytags[len(self.mytags)-1] == 'option':
       self.mydata['select'][self.myselect][data]=self.myoptionvalue
-      #if showparserdetails: print("'"+"','".join(self.mytags)+"'")
-      #if showparserdetails: print("Encountered data :", encodeddata)
 
   def return_data(self):
       return self.mydata

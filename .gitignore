@@ -1,5 +1,6 @@
 .config.json
 check-hotsails.py
+dd.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

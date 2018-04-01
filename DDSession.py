@@ -1,6 +1,7 @@
 
 import json,requests,re,os
 from DDHtmlParser import DDHtmlParser
+from DDConfig import DDConfig
 
 import logging
 import mimetypes
@@ -9,8 +10,8 @@ log = logging.getLogger(__name__)
 
 class DDSession:
 
-  def __init__(self,config):
-    self.config = self.__readConfig(config)
+  def __init__(self):
+    self.config = DDConfig()
     self.session=None
 
     self.lastresponse=None
@@ -22,9 +23,6 @@ class DDSession:
 
   def __getitem__(self, key):
     if key == 'config': return self.config
-
-  def __readConfig(self,configfile):
-    return json.load(open(configfile))["dd"]
 
   def __get(self,relativeurl):
     url=self.config['baseurl']+'/'+relativeurl
