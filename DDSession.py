@@ -81,14 +81,7 @@ class DDSession:
 
   def __getNextDeleteID(self):
     self.__get('member.php')
-
-    try:
-      self.__get(self.lastdata['links']['Anzeige(n) bearbeiten'])
-    except Exception:
-      log.debug(json.dumps(self.lastdata['links'],indent=4))
-      raise
-    self.__processResponse()
-
+    self.__get(self.lastdata['links']['Anzeige(n) bearbeiten'])
     anzeigeID=self.__getAnzeigeID(self.lastdata['links'],'^my_items\.php\?deleteid=(.*)')
     if anzeigeID:
       return anzeigeID
@@ -96,12 +89,12 @@ class DDSession:
 
   def anzeigenLoeschen(self):
     anzeigeID=self.__getNextDeleteID()
-    link = 'my_items.php?deleteid='+anzeigeID
-    while(link):
+    while(anzeigeID):
+      link = 'my_items.php?deleteid='+anzeigeID
       log.info('- delete anzeige "'+self.lastdata['ddanzeige'][anzeigeID]+'"')
       self.__get(link)
-      link = self.__getNextDeleteLink()
-
+      anzeigeID = self.__getNextDeleteID()
+  
   def anzeigeEinstellen(self,anzeige):
     log.info('- start page')
     self.__get('member.php')

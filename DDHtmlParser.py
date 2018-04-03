@@ -100,7 +100,6 @@ class DDHtmlParser(HTMLParser):
     if match:
       anzeigeID = match.group(1)
       if anzeigeID not in self.mydata['ddanzeige']:
-        print('ddanzeige['+anzeigeID+']='+data)
         self.mydata['ddanzeige'][anzeigeID]=data
 
   def return_data(self):

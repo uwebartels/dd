@@ -1,6 +1,7 @@
 .config.json
-check-hotsails.py
+checkhotsails.py
 dd.json
+aws.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
