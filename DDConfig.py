@@ -29,7 +29,7 @@ class DDConfig:
     with io.open(self.filename, 'w', encoding='utf-8') as f:
       f.write(json.dumps(self.config,indent=4, ensure_ascii=False))
     os.umask(umask_original)
-    log.info("Konfiguration in "+filename+" gespeichert.")
+    log.info("Konfiguration in "+self.filename+" gespeichert.")
     return self.config
 
   def __getitem__(self, key):
