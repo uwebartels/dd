@@ -109,7 +109,7 @@ class DDSession:
     for option in self.lastdata['select']['catid']:
       if re.match(anzeige['category']+' \(',option):
         catid=self.lastdata['select']['catid'][option]
-    if catid=='': raise("Kategorie "+category+' not found.')
+    if catid=='': raise Exception("Kategorie "+anzeige['category']+" nicht gefunden. Mögliche Kategorien: \n"+"\n".join(self.lastdata['select']['catid'].keys()))
     params = {'catid': catid }
     self.__post('item.php',params)
 

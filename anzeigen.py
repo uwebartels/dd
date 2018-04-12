@@ -46,7 +46,7 @@ for dir in dirs:
     session.anzeigeEinstellen(anzeige)
   except Exception as e:
     exc_type, exc_value, exc_traceback = sys.exc_info()
-    log.error('Error in '+anzeige['title'])
+    log.error('Fehler beim Einstellen der Anzeige '+anzeige['title'])
     exeption_hash = {'title':anzeige['title'],
                      'exception':e,
                      'exc_type':exc_type,
