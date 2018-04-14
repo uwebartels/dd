@@ -2,7 +2,8 @@
 
 ## Voraussetungen:
 - Python 3.3 oder größer
-Python kommt auf dem Mac mit der Installation von Xcode mit
+Hier steht, wie es geht
+http://docs.python-guide.org/en/latest/starting/install3/osx/
 
 ## Installation
 - als ZIP herunterladen und auspacken
@@ -19,15 +20,19 @@ Kategorie: Finnen
 Ort: Berlin
 Reserviert: Ja
 Freeride Finne, fast wie neu.
+Versand möglich, zusätzlich 5 EUR
 ```
 Letzte Zeilen sind der Text der Anzeige und kann sich über mehrere Zeilen erstrecken.
-- Konfigurationsdatei dd.json wird automatisch erstellt, wenn sie nicht existiert. Hier werden login,password und Verzeichnis Eurer Anzeigen gespeichert.
+- Konfigurationsdatei dd.json erstellen:
+{
+    "anzeigenpath": "/Users/uwe/Desktop/dd/active", 
+    "username": "<dd kleinanazeigen login>", 
+    "password": "<dd kleinanzeigen passwort>"
+}
+Wer anzeigen.py per Terminal starten kann, dem wird hier das Anlegen der Datei erspart.
 
-- Skript ./anzeigen.py starten
-Terminal starten
-```
-cd <Verzeichnis mit den von github ausgepackten Dateien>
-./anzeigen.py
+- unter Windows Skript anzeigen.py starten
+- unter Mac dd.app starten. Die Logdatei ist dann anzeigen.log
 
 ## was passiert?
 - es werden alle anzeigen aus dem Account gelöscht
