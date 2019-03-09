@@ -290,7 +290,7 @@ fi</string>
 				<key>isViewVisible</key>
 				<true/>
 				<key>location</key>
-				<string>309.000000:580.000000</string>
+				<string>309.000000:499.000000</string>
 				<key>nibPath</key>
 				<string>/System/Library/Automator/Run Shell Script.action/Contents/Resources/English.lproj/main.nib</string>
 			</dict>
@@ -456,12 +456,10 @@ fi</string>
 						<string>4</string>
 					</dict>
 				</dict>
-				<key>conversionLabel</key>
-				<integer>0</integer>
 				<key>isViewVisible</key>
 				<true/>
 				<key>location</key>
-				<string>309.000000:762.000000</string>
+				<string>309.000000:681.000000</string>
 				<key>nibPath</key>
 				<string>/System/Library/Automator/Ask for Text.action/Contents/Resources/Base.lproj/main.nib</string>
 			</dict>
@@ -471,14 +469,14 @@ fi</string>
 	</array>
 	<key>connectors</key>
 	<dict>
-		<key>079D8F7D-2BF8-4001-B131-228C612AE626</key>
+		<key>94C44874-1F87-4BF5-8E1C-FA0AFBDFED04</key>
 		<dict>
 			<key>from</key>
 			<string>54E1AA94-BEDB-42B0-A94D-8780CEE82672 - 54E1AA94-BEDB-42B0-A94D-8780CEE82672</string>
 			<key>to</key>
 			<string>67699609-24F8-43CD-8F08-94F53D48011D - 67699609-24F8-43CD-8F08-94F53D48011D</string>
 		</dict>
-		<key>CC74FFE9-604A-4F81-B35E-7FE008984038</key>
+		<key>CA902B2C-0CC2-43BE-999F-04AE5D5E2818</key>
 		<dict>
 			<key>from</key>
 			<string>1B70647E-06B8-4452-A6F4-4AEADF6DC524 - 1B70647E-06B8-4452-A6F4-4AEADF6DC524</string>

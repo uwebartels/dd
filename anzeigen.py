@@ -24,6 +24,7 @@ ignoreFileList=['.DS_Store']
 
 # login to daildose
 session=DDSession()
+session.login()
 # delete all ads
 session.anzeigenLoeschen()
 

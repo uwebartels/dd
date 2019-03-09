@@ -9,7 +9,7 @@ class DDHtmlParser(HTMLParser):
   
   def __init__(self):
     HTMLParser.__init__(self)
-    self.mydata = {'links': {},'select': {},'forms': {},'meta':{'http-equiv':{},'name':{},'property':{}},'ddanzeige':{}}
+    self.mydata = {'links': {},'select': {},'forms': {},'meta':{'http-equiv':{},'name':{},'property':{}},'ddanzeige':{},'ddanzeigendetails':{}}
     self.myignoretags = ['link','img','font','br','p','b','input']
     self.myformattags = ['u','b','strike']
     self.mytags=[]
@@ -95,12 +95,48 @@ class DDHtmlParser(HTMLParser):
     if len(self.mytags) > 0 and self.mytags[len(self.mytags)-1] == 'option':
       self.mydata['select'][self.myselect][data]=self.myoptionvalue
 
+    # detail page für one advertisement
+    ## initialize result data for next <td> element
+    if self.mytags[len(self.mytags)-1] == 'td':
+      if data=='Preis (EUR)':
+        self.mydata['ddanzeigendetails']['price']=''
+        return
+      if data=='Ort':
+        self.mydata['ddanzeigendetails']['place']=''
+        return
+      if data==' Verkäufer':
+        self.mydata['ddanzeigendetails']['seller']=''
+        return
+      if data==' Telefon':
+        self.mydata['ddanzeigendetails']['tel']=''
+        return
+      if data==' Datum':
+        self.mydata['ddanzeigendetails']['date']=''
+        return
+
+      if 'price' in self.mydata['ddanzeigendetails']:
+        if self.mydata['ddanzeigendetails']['price']=='':
+          self.mydata['ddanzeigendetails']['price']=data.strip()
+      if 'place' in self.mydata['ddanzeigendetails']:
+        if self.mydata['ddanzeigendetails']['place']=='':
+          self.mydata['ddanzeigendetails']['place']=data.strip()
+      if 'seller' in self.mydata['ddanzeigendetails']:
+        if self.mydata['ddanzeigendetails']['seller']=='':
+          self.mydata['ddanzeigendetails']['seller']=data.strip()
+      if 'tel' in self.mydata['ddanzeigendetails']:
+        if self.mydata['ddanzeigendetails']['tel']=='':
+          self.mydata['ddanzeigendetails']['tel']=data.strip()
+      if 'date' in self.mydata['ddanzeigendetails']:
+        if self.mydata['ddanzeigendetails']['date']=='':
+          self.mydata['ddanzeigendetails']['date']=data.strip()
+
     # identifies one advertisement
     match = re.match('detail\.php\?siteid=(\d+)',self.myhref)
     if match:
       anzeigeID = match.group(1)
       if anzeigeID not in self.mydata['ddanzeige']:
         self.mydata['ddanzeige'][anzeigeID]=data
+
 
   def return_data(self):
       return self.mydata
