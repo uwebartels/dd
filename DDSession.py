@@ -99,7 +99,16 @@ class DDSession:
   def __setReserved(self,anzeige):
     log.info('- Anzeige Reserviert')
     self.__get(self.lastdata['links']['Anzeige(n) bearbeiten'])
-    link=self.lastdata['links'][anzeige['title']]
+    if len(anzeige['title'])>33:
+      linkname=anzeige['title'][0:32]+'...'
+    else:
+      linkname=anzeige['title']
+    try:
+      link=self.lastdata['links'][linkname]
+    except KeyError:
+      print('KeyError: key '+linkname+' not found. existing keys:')
+      print ('\n'.join(self.lastdata['links']))
+      raise
     match=re.match('^detail\.php\?siteid=(\d+)$',link)
     if match:
       anzeigeid=match.group(1)
