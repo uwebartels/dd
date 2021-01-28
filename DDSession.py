@@ -187,7 +187,7 @@ class DDSession:
         log.info('search: '+category+', '+searchterm)
         catid=''
         for name,id in options.items():
-          if re.match(category+' .*\(',name):
+          if re.match(category+'.* .*\(',name):
             catid=id
         if catid=='': raise Exception("Kategorie "+category+" nicht gefunden. Mögliche Kategorien: \n"+"\n".join(self.lastdata['select']['catid'].keys()))
         params={'searchword': searchterm,'catid_search': catid,'do_search':'Suchen'}
